@@ -419,6 +419,10 @@ const commands = {
     description: 'Start interactive session with sources',
     usage: 'lctx chat -s <sources...> [-a agent]',
   },
+  mcp: {
+    description: 'Start MCP server (stdio transport)',
+    usage: 'lctx mcp',
+  },
 };
 
 const { values, positionals } = parseArgs({
@@ -504,6 +508,12 @@ async function main() {
       break;
     }
 
+    case 'mcp': {
+      const { startMcpServer } = await import('./commands/mcp.js');
+      await startMcpServer(config);
+      break;
+    }
+
     default:
       console.log('lctx - Local context aggregator for AI coding agents\n');
       console.log('Commands:');
@@ -525,10 +535,35 @@ main().catch(console.error);
 | `lctx list` | List all sources |
 | `lctx ask -s <sources> -q <question>` | Ask question (headless, spawns agent) |
 | `lctx chat -s <sources>` | Interactive session in isolated dir |
+| `lctx mcp` | Start MCP server (stdio transport, for AI tool integration) |
 
 Both `ask` and `chat` create the same isolated temp directory with empty MCP configs and symlinks. The difference:
 - `ask` - runs agent with prompt file, returns answer
 - `chat` - opens agent in interactive mode, user controls session
+
+### 3.7 CLI vs MCP Mode
+
+lctx uses a **subcommand approach** to distinguish between CLI and MCP modes:
+
+| Mode    | Command                       | How it works                                         |
+|---------|-------------------------------|------------------------------------------------------|
+| **CLI** | `lctx add`, `lctx list`, etc. | User runs commands directly in terminal              |
+| **MCP** | `lctx mcp`                    | AI tool spawns as subprocess, communicates via stdio |
+
+**MCP stdio transport:**
+- No network port used
+- Client spawns `lctx mcp` as subprocess
+- JSON-RPC messages via stdin/stdout pipes
+- One message per line, newline-delimited
+
+```
+┌─────────────────┐      stdin (pipe)       ┌─────────────────┐
+│  Claude Desktop │  ──────────────────────▶│    lctx mcp     │
+│  (MCP Client)   │  ◀──────────────────────│   (subprocess)  │
+└─────────────────┘      stdout (pipe)      └─────────────────┘
+```
+
+This approach keeps one binary (`lctx`) with explicit subcommand routing.
 
 ---
 
@@ -557,7 +592,7 @@ Both `ask` and `chat` create the same isolated temp directory with empty MCP con
   "mcpServers": {
     "lctx": {
       "command": "npx",
-      "args": ["-y", "lctx"],
+      "args": ["-y", "lctx", "mcp"],
       "env": {
         "LCTX_CONFIG": "~/.config/lctx/config.json"
       }
@@ -572,7 +607,7 @@ Both `ask` and `chat` create the same isolated temp directory with empty MCP con
   "mcpServers": {
     "lctx": {
       "command": "bunx",
-      "args": ["lctx"]
+      "args": ["lctx", "mcp"]
     }
   }
 }
