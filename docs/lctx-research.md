@@ -46,7 +46,7 @@
 │  │  • list_     │     │  │  • load/save    │                         │ │
 │  │    sources   │     │  │  • sources      │                         │ │
 │  │  • ask_      │     │  │  • agents       │                         │ │
-│  │    codebase  │     │  └─────────────────┘                         │ │
+│  │    sources   │     │  └─────────────────┘                         │ │
 │  └──────────────┘     │                                              │ │
 │                       └──────────────────────────────────────────────┘ │
 │                                                                        │
@@ -59,7 +59,7 @@
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Data Flow (ask_codebase)
+### Data Flow (ask_sources)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -70,7 +70,7 @@
 │                          │                                      │
 │         ┌────────────────┴────────────────┐                     │
 │         ▼                                 ▼                     │
-│   list_sources                      ask_codebase                │
+│   list_sources                      ask_sources                 │
 │   (returns list)                    (spawns subagent)           │
 │                                           │                     │
 │                                           ▼                     │
@@ -282,7 +282,7 @@ Two MCP tools available:
 | Tool           | Description                                          |
 |----------------|------------------------------------------------------|
 | `list_sources` | Returns configured sources (names, descriptions)     |
-| `ask_codebase` | Spawns subagent in isolated temp dir, returns answer |
+| `ask_sources`  | Spawns subagent in isolated temp dir, returns answer |
 
 ```typescript
 // packages/mcp-server/src/index.ts
@@ -310,7 +310,7 @@ server.tool(
       content: [{
         type: 'text',
         text: sources.map(s =>
-          `• ${s.name} (${s.type}) - ${s.url || s.path}`
+          `[${s.name}] ${s.description || ''}`
         ).join('\n')
       }]
     };
@@ -319,18 +319,17 @@ server.tool(
 
 // Tool: Ask a question with context from sources
 server.tool(
-  'ask_codebase',
+  'ask_sources',
   {
     sources: z.array(z.string()).describe('Source names to include'),
-    question: z.string().describe('Question about the codebase'),
-    agent: z.string().optional().describe('Agent to use (default from config)')
+    question: z.string().describe('Question about the sources')
   },
-  async ({ sources, question, agent }) => {
+  async ({ sources, question }) => {
     // Creates isolated temp dir, spawns subagent, returns answer
     const response = await runner.ask({
       sources,
       question,
-      agent: agent || config.defaultAgent
+      agent: config.defaultAgent
     });
 
     return {
@@ -377,7 +376,7 @@ The following source directories are available in the current directory:
 Read the files directly to answer the question.
 ```
 
-**`ask_codebase` flow:**
+**`ask_sources` flow:**
 1. Create `/tmp/lctx-{uuid}/`
 2. Write all empty MCP configs
 3. Create symlinks to requested source directories
@@ -759,7 +758,7 @@ You have the following sources configured:
 
 User: How do I create a custom tool in LangGraph?
 
-Claude: [calls ask_codebase tool with sources=["langchain", "langgraph"], question="How to create a custom tool in LangGraph?"]
+Claude: [calls ask_sources tool with sources=["langchain", "langgraph"], question="How to create a custom tool in LangGraph?"]
 
 Here's how to create a custom tool in LangGraph...
 ```
@@ -778,7 +777,7 @@ Here's how to create a custom tool in LangGraph...
 ### Phase 2: MCP Server
 - [ ] MCP Server (stdio)
 - [ ] `list_sources` tool
-- [ ] `ask_codebase` tool (uses Subagent Runner)
+- [ ] `ask_sources` tool (uses Subagent Runner)
 
 ### Phase 3: Polish
 - [ ] Caching
