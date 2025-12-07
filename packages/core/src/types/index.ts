@@ -1,5 +1,3 @@
-export const version = "0.0.0";
-
 export type {
   BaseSource,
   GitRepositorySource,
@@ -7,6 +5,6 @@ export type {
   FileSource,
   DirectorySource,
   Source,
-  AgentConfig,
-  LctxConfig,
-} from "./types/index.ts";
+} from "./source.ts";
+
+export type { AgentConfig, LctxConfig } from "./config.ts";

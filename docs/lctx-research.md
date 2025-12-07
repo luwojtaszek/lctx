@@ -638,7 +638,6 @@ This approach keeps one binary (`lctx`) with explicit subcommand routing.
 export interface LctxConfig {
   // Paths
   sourcesDirectory: string;    // ~/.config/lctx/sources
-  cacheDirectory: string;      // ~/.config/lctx/cache
 
   // Sources (repos, docs, files)
   sources: Source[];
@@ -665,7 +664,6 @@ export interface AgentConfig {
 // ~/.config/lctx/config.json - example
 {
   "sourcesDirectory": "~/.config/lctx/sources",
-  "cacheDirectory": "~/.config/lctx/cache",
   "sources": [
     {
       "name": "langchain",
