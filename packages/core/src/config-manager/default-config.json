@@ -1,0 +1,13 @@
+{
+  "sourcesDirectory": "~/.config/lctx/sources",
+  "sources": [],
+  "agents": {
+    "claude-code": {
+      "commands": {
+        "chat": "claude",
+        "ask": "claude -p {prompt_file}"
+      }
+    }
+  },
+  "defaultAgent": "claude-code"
+}
