@@ -189,7 +189,7 @@ Based on analysis of `/docs/lctx-research.md` and current codebase state.
 
 **Functionality:**
 - `list_sources` tool - Returns configured sources
-- `ask_codebase` tool - Spawns subagent, returns answer
+- `ask_sources` tool - Spawns subagent, returns answer
 
 **Deliverable:** Working MCP tools for AI integration
 
