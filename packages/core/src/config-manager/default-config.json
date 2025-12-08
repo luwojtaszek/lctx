@@ -5,7 +5,14 @@
     "claude-code": {
       "commands": {
         "chat": "claude",
-        "ask": "claude -p {prompt_file} --mcp-config {mcp_config}"
+        "ask": "claude --strict-mcp-config --mcp-config {mcp_config_file} -p {prompt_file}"
+      },
+      "addDirFlag": "--add-dir {path}",
+      "mcp": {
+        "path": ".mcp.json",
+        "config": {
+          "mcpServers": {}
+        }
       }
     }
   },

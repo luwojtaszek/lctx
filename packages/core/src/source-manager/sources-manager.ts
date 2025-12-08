@@ -1,5 +1,5 @@
 import type { ConfigManager } from "../config-manager";
-import type { LctxConfig, Source, SourceType } from "../shared";
+import type { LctxConfig, Source, SourcePath, SourceType } from "../shared";
 import type { SourceManager } from "./source-manager";
 
 /**
@@ -63,7 +63,7 @@ export class SourcesManager {
     }
   }
 
-  async getSourcePath(name: string): Promise<string | undefined> {
+  async getSourcePath(name: string): Promise<SourcePath | undefined> {
     const config = await this.getConfig();
     const source = this.findSource(config, name);
     if (!source) {
@@ -71,7 +71,7 @@ export class SourcesManager {
     }
 
     const manager = this.getManager(source.type);
-    return manager.getSourcePath(source);
+    return { name, path: manager.getSourcePath(source) };
   }
 
   async listSources(): Promise<Source[]> {

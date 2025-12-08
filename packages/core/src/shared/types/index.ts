@@ -6,6 +6,7 @@ export type {
   DirectorySource,
   Source,
   SourceType,
+  SourcePath,
 } from "./source.ts";
 
 export type { AgentConfig, LctxConfig } from "./config.ts";

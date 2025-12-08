@@ -6,7 +6,13 @@ export const AgentConfigSchema = z.object({
     chat: z.string(),
     ask: z.string(),
   }),
-  mcpConfigFile: z.string().optional(),
+  addDirFlag: z.string().optional(),
+  mcp: z
+    .object({
+      path: z.string(),
+      config: z.record(z.string(), z.unknown()),
+    })
+    .optional(),
 });
 
 export const LctxConfigSchema = z.object({

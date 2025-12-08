@@ -2,6 +2,7 @@ import { z } from "zod";
 
 const BaseSourceSchema = z.object({
   name: z.string(),
+  description: z.string().optional(),
   lastUpdated: z.string().optional(),
 });
 

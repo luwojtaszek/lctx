@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { SubagentRunner } from "../../../src";
 import type { ConfigManager, LctxConfig, SourcesManager } from "../../../src";
+import defaultConfig from "../../../src/config-manager/default-config.json";
 
 describe("SubagentRunner", () => {
   let testDir: string;
@@ -11,20 +12,6 @@ describe("SubagentRunner", () => {
   let mockSourcesManager: SourcesManager;
   let runner: SubagentRunner;
   let originalBunSpawn: typeof Bun.spawn;
-
-  const defaultConfig: LctxConfig = {
-    sourcesDirectory: "~/.config/lctx/sources",
-    sources: [],
-    agents: {
-      "claude-code": {
-        commands: {
-          chat: "claude",
-          ask: "claude -p {prompt_file} --mcp-config {mcp_config}",
-        },
-      },
-    },
-    defaultAgent: "claude-code",
-  };
 
   function createMockSpawnResult(
     exitCode: number,
@@ -71,10 +58,16 @@ describe("SubagentRunner", () => {
     mockSourcesManager = {
       getSourcePath: mock((name: string) => {
         if (name === "langchain") {
-          return Promise.resolve(join(testDir, "sources", "langchain"));
+          return Promise.resolve({
+            name,
+            path: join(testDir, "sources", "langchain"),
+          });
         }
         if (name === "langgraph") {
-          return Promise.resolve(join(testDir, "sources", "langgraph"));
+          return Promise.resolve({
+            name,
+            path: join(testDir, "sources", "langgraph"),
+          });
         }
         return Promise.resolve(undefined);
       }),
@@ -135,41 +128,26 @@ describe("SubagentRunner", () => {
       expect(capturedCwd).toMatch(/^\/tmp\/lctx-[0-9a-f-]{36}$/);
     });
 
-    test("writes empty MCP configs", async () => {
-      // Use a deferred approach - capture cwd, then check files before cleanup
-      let capturedCwd: string | undefined;
-      const fileContents: Record<string, string> = {};
+    test("writes MCP config from agent configuration", async () => {
+      let mcpContent: string | undefined;
 
       // @ts-expect-error - mocking Bun.spawn
       Bun.spawn = mock((args: string[], options: { cwd?: string }) => {
-        capturedCwd = options.cwd;
-        // Synchronously read files - they exist by now
         if (options.cwd) {
-          // Schedule async reads but return sync result
-          Promise.all([
-            Bun.file(join(options.cwd, ".mcp.json")).text(),
-            Bun.file(join(options.cwd, ".gemini", "settings.json")).text(),
-            Bun.file(join(options.cwd, ".cursor", "mcp.json")).text(),
-            Bun.file(join(options.cwd, "opencode.json")).text(),
-          ]).then(([mcp, gemini, cursor, opencode]) => {
-            fileContents.mcp = mcp;
-            fileContents.gemini = gemini;
-            fileContents.cursor = cursor;
-            fileContents.opencode = opencode;
-          });
+          Bun.file(join(options.cwd, ".mcp.json"))
+            .text()
+            .then((content) => {
+              mcpContent = content;
+            });
         }
         return createMockSpawnResult(0, "answer");
       });
 
       await runner.ask({ sources: ["langchain"], question: "Test?" });
 
-      // Wait a tick for the file reads to complete
       await new Promise((resolve) => setTimeout(resolve, 10));
 
-      expect(fileContents.mcp).toBe("{}");
-      expect(fileContents.gemini).toBe("{}");
-      expect(fileContents.cursor).toBe("{}");
-      expect(fileContents.opencode).toBe("{}");
+      expect(mcpContent).toBe('{"mcpServers":{}}');
     });
 
     test("creates symlinks for requested sources", async () => {
@@ -233,10 +211,10 @@ describe("SubagentRunner", () => {
       expect(promptContent).toContain("# Question");
       expect(promptContent).toContain("How do I create a tool?");
       expect(promptContent).toContain("# Available Sources");
-      expect(promptContent).toContain("- langchain/");
-      expect(promptContent).toContain("- langgraph/");
+      expect(promptContent).toContain("- ./langchain/");
+      expect(promptContent).toContain("- ./langgraph/");
       expect(promptContent).toContain(
-        "Read the files directly to answer the question.",
+        "You MUST explore and read files from these directories",
       );
     });
 
@@ -255,11 +233,16 @@ describe("SubagentRunner", () => {
 
       expect(capturedArgs).toBeDefined();
       expect(capturedCwd).toBeDefined();
+      // Base command args
       expect(capturedArgs?.[0]).toBe("claude");
-      expect(capturedArgs?.[1]).toBe("-p");
-      expect(capturedArgs?.[2]).toBe(join(capturedCwd ?? "", "prompt.md"));
-      expect(capturedArgs?.[3]).toBe("--mcp-config");
-      expect(capturedArgs?.[4]).toBe(join(capturedCwd ?? "", ".mcp.json"));
+      expect(capturedArgs?.[1]).toBe("--strict-mcp-config");
+      expect(capturedArgs?.[2]).toBe("--mcp-config");
+      expect(capturedArgs?.[3]).toBe(join(capturedCwd ?? "", ".mcp.json"));
+      expect(capturedArgs?.[4]).toBe("-p");
+      expect(capturedArgs?.[5]).toBe(join(capturedCwd ?? "", "prompt.md"));
+      // Dynamic --add-dir args: resolved source paths (not symlinks)
+      expect(capturedArgs?.[6]).toBe("--add-dir");
+      expect(capturedArgs?.[7]).toBe(join(testDir, "sources", "langchain"));
     });
 
     test("captures stdout as answer", async () => {
@@ -434,7 +417,7 @@ describe("SubagentRunner", () => {
       expect(linkTarget).toBe(join(testDir, "sources", "langchain"));
     });
 
-    test("writes empty MCP configs", async () => {
+    test("writes MCP config from agent configuration", async () => {
       let mcpConfig: string | undefined;
 
       // @ts-expect-error - mocking Bun.spawn
@@ -453,7 +436,48 @@ describe("SubagentRunner", () => {
 
       await new Promise((resolve) => setTimeout(resolve, 10));
 
-      expect(mcpConfig).toBe("{}");
+      expect(mcpConfig).toBe('{"mcpServers":{}}');
+    });
+
+    test("creates MCP config in nested directory when path contains subdirectory", async () => {
+      let mcpConfig: string | undefined;
+
+      // Override config to use cursor-style nested path
+      mockConfigManager.load = mock(() =>
+        Promise.resolve({
+          ...defaultConfig,
+          agents: {
+            "claude-code": {
+              commands: {
+                chat: "claude",
+                ask: "claude -p {prompt_file}",
+              },
+              mcp: {
+                path: ".cursor/mcp.json",
+                config: { mcpServers: { test: {} } },
+              },
+            },
+          },
+        }),
+      );
+
+      // @ts-expect-error - mocking Bun.spawn
+      Bun.spawn = mock((args: string[], options: { cwd?: string }) => {
+        if (options.cwd) {
+          Bun.file(join(options.cwd, ".cursor", "mcp.json"))
+            .text()
+            .then((content) => {
+              mcpConfig = content;
+            });
+        }
+        return createMockChatSpawnResult(0);
+      });
+
+      await runner.chat({ sources: ["langchain"] });
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(mcpConfig).toBe('{"mcpServers":{"test":{}}}');
     });
   });
 });

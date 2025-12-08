@@ -4,18 +4,22 @@
 TBD - created by archiving change setup-monorepo. Update Purpose after archive.
 ## Requirements
 ### Requirement: Monorepo Package Structure
-The project SHALL use a Turborepo monorepo with three packages under the `packages/` directory:
-- `@lctx/core` - Core engine (source manager, subagent runner, config manager)
-- `@lctx/cli` - Command-line interface
-- `@lctx/mcp-server` - MCP server for AI tool integration
+The project SHALL use a Turborepo monorepo with packages under `packages/` and apps under `apps/`:
+- `apps/cli` - Command-line interface (@lctx/cli)
+- `packages/core` - Core engine (source manager, subagent runner, config manager) (@lctx/core)
+- `packages/mcp-server` - MCP server for AI tool integration (@lctx/mcp-server)
 
 #### Scenario: Package discovery
 - **WHEN** running `bun install` in the repository root
-- **THEN** all three packages are linked as workspaces
+- **THEN** all packages and apps are linked as workspaces
 
 #### Scenario: Cross-package imports
-- **WHEN** packages/cli imports from @lctx/core
+- **WHEN** apps/cli imports from @lctx/core
 - **THEN** the import resolves correctly without publishing
+
+#### Scenario: Binary entry point
+- **WHEN** running `bun link` in the repository root
+- **THEN** the `lctx` command is available globally pointing to apps/cli
 
 ### Requirement: Build System Configuration
 The project SHALL use Turborepo with the following tasks defined:

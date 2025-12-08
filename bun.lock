@@ -15,9 +15,12 @@
         "typescript": "^5",
       },
     },
-    "packages/cli": {
+    "apps/cli": {
       "name": "@lctx/cli",
       "version": "0.0.0",
+      "bin": {
+        "lctx": "src/index.ts",
+      },
       "dependencies": {
         "@lctx/core": "workspace:*",
       },
@@ -57,7 +60,7 @@
 
     "@biomejs/cli-win32-x64": ["@biomejs/cli-win32-x64@1.9.4", "", { "os": "win32", "cpu": "x64" }, "sha512-8Y5wMhVIPaWe6jw2H+KlEm4wP/f7EW3810ZLmDlrEEy5KvBsb9ECEfu/kMWD484ijfQ8+nIi0giMgu9g1UAuuA=="],
 
-    "@lctx/cli": ["@lctx/cli@workspace:packages/cli"],
+    "@lctx/cli": ["@lctx/cli@workspace:apps/cli"],
 
     "@lctx/core": ["@lctx/core@workspace:packages/core"],
 

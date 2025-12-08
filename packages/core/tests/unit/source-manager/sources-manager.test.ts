@@ -190,7 +190,7 @@ describe("SourcesManager", () => {
   });
 
   describe("getSourcePath", () => {
-    test("returns path for configured source", async () => {
+    test("returns SourcePath for configured source", async () => {
       const source: GitRepositorySource = {
         type: "git",
         name: "test-repo",
@@ -199,13 +199,16 @@ describe("SourcesManager", () => {
 
       await sourcesManager.add(source);
 
-      const path = await sourcesManager.getSourcePath("test-repo");
-      expect(path).toBe(join(config.sourcesDirectory, "git", "test-repo"));
+      const result = await sourcesManager.getSourcePath("test-repo");
+      expect(result).toEqual({
+        name: "test-repo",
+        path: join(config.sourcesDirectory, "git", "test-repo"),
+      });
     });
 
     test("returns undefined for non-existent source", async () => {
-      const path = await sourcesManager.getSourcePath("nonexistent");
-      expect(path).toBeUndefined();
+      const result = await sourcesManager.getSourcePath("nonexistent");
+      expect(result).toBeUndefined();
     });
   });
 

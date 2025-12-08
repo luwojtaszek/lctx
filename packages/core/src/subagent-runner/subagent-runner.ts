@@ -1,12 +1,12 @@
 import { mkdir, rm, symlink } from "node:fs/promises";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import type { ConfigManager } from "../config-manager";
-import type { AskOptions, AskResult, ChatOptions } from "../shared/types";
+import type { AskOptions, AskResult, ChatOptions, SourcePath } from "../shared";
 import type { SourcesManager } from "../source-manager";
 
 /**
  * Executes AI agents in isolated temp directories with access to configured sources.
- * Prevents circular MCP loops by writing empty MCP configs.
+ * Writes agent-specific MCP config to prevent circular loops.
  */
 export class SubagentRunner {
   constructor(
@@ -21,21 +21,29 @@ export class SubagentRunner {
     const tempDir = await this.createTempDirectory();
 
     try {
-      await this.writeEmptyMcpConfigs(tempDir);
-      await this.createSourceSymlinks(tempDir, options.sources);
-      await this.writePromptFile(tempDir, options.question, options.sources);
-
       const config = await this.configManager.load();
       const agentConfig = config.agents[config.defaultAgent];
       if (!agentConfig) {
         throw new Error(`Agent not found: ${config.defaultAgent}`);
       }
 
+      const sourcePaths = await this.resolveSourcePaths(options.sources);
+      const mcpConfigFile = await this.writeMcpConfig(tempDir, agentConfig.mcp);
+      await this.createSourceSymlinks(tempDir, sourcePaths);
+      await this.writePromptFile(tempDir, options.question, options.sources);
+
       const command = this.interpolateCommand(
         agentConfig.commands.ask,
         tempDir,
+        mcpConfigFile,
       );
-      const args = this.parseCommand(command);
+      const baseArgs = this.parseCommand(command);
+      const addDirArgs = this.buildAddDirArgs(
+        agentConfig.addDirFlag,
+        sourcePaths,
+      );
+
+      const args = [...baseArgs, ...addDirArgs];
 
       const proc = Bun.spawn(args, {
         cwd: tempDir,
@@ -64,17 +72,22 @@ export class SubagentRunner {
     const tempDir = await this.createTempDirectory();
 
     try {
-      await this.writeEmptyMcpConfigs(tempDir);
-      await this.createSourceSymlinks(tempDir, options.sources);
-
       const config = await this.configManager.load();
       const agentConfig = config.agents[config.defaultAgent];
       if (!agentConfig) {
         throw new Error(`Agent not found: ${config.defaultAgent}`);
       }
 
-      const command = agentConfig.commands.chat;
-      const args = this.parseCommand(command);
+      const sourcePaths = await this.resolveSourcePaths(options.sources);
+      await this.writeMcpConfig(tempDir, agentConfig.mcp);
+      await this.createSourceSymlinks(tempDir, sourcePaths);
+
+      const baseArgs = this.parseCommand(agentConfig.commands.chat);
+      const addDirArgs = this.buildAddDirArgs(
+        agentConfig.addDirFlag,
+        sourcePaths,
+      );
+      const args = [...baseArgs, ...addDirArgs];
 
       const proc = Bun.spawn(args, {
         cwd: tempDir,
@@ -100,26 +113,49 @@ export class SubagentRunner {
   }
 
   /**
-   * Write empty MCP configs to prevent circular loops
+   * Write MCP config file from agent configuration
    */
-  private async writeEmptyMcpConfigs(tempDir: string): Promise<void> {
-    const emptyConfig = "{}";
+  private async writeMcpConfig(
+    tempDir: string,
+    mcp: { path: string; config: Record<string, unknown> } | undefined,
+  ): Promise<string | null> {
+    if (!mcp) return null;
 
-    // Claude Code
-    await Bun.write(join(tempDir, ".mcp.json"), emptyConfig);
+    const fullPath = join(tempDir, mcp.path);
+    const dir = dirname(fullPath);
+    if (dir !== tempDir) {
+      await mkdir(dir, { recursive: true });
+    }
+    await Bun.write(fullPath, JSON.stringify(mcp.config));
+    return fullPath;
+  }
 
-    // Gemini CLI
-    const geminiDir = join(tempDir, ".gemini");
-    await mkdir(geminiDir, { recursive: true });
-    await Bun.write(join(geminiDir, "settings.json"), emptyConfig);
+  /**
+   * Resolve source names to their filesystem paths
+   */
+  private async resolveSourcePaths(sources: string[]): Promise<SourcePath[]> {
+    const result: SourcePath[] = [];
+    for (const sourceName of sources) {
+      const sourcePath = await this.sourcesManager.getSourcePath(sourceName);
+      if (!sourcePath) {
+        throw new Error(`Source not found: ${sourceName}`);
+      }
+      result.push(sourcePath);
+    }
+    return result;
+  }
 
-    // Cursor
-    const cursorDir = join(tempDir, ".cursor");
-    await mkdir(cursorDir, { recursive: true });
-    await Bun.write(join(cursorDir, "mcp.json"), emptyConfig);
-
-    // OpenCode
-    await Bun.write(join(tempDir, "opencode.json"), emptyConfig);
+  /**
+   * Build --add-dir arguments from flag template using resolved source paths
+   */
+  private buildAddDirArgs(
+    addDirFlag: string | undefined,
+    sourcePaths: SourcePath[],
+  ): string[] {
+    if (!addDirFlag) return [];
+    return sourcePaths.flatMap((s) =>
+      addDirFlag.replace("{path}", s.path).split(" "),
+    );
   }
 
   /**
@@ -127,16 +163,11 @@ export class SubagentRunner {
    */
   private async createSourceSymlinks(
     tempDir: string,
-    sources: string[],
+    sourcePaths: SourcePath[],
   ): Promise<void> {
-    for (const sourceName of sources) {
-      const sourcePath = await this.sourcesManager.getSourcePath(sourceName);
-      if (!sourcePath) {
-        throw new Error(`Source not found: ${sourceName}`);
-      }
-
-      const linkPath = join(tempDir, sourceName);
-      await symlink(sourcePath, linkPath);
+    for (const { name, path } of sourcePaths) {
+      const linkPath = join(tempDir, name);
+      await symlink(path, linkPath);
     }
   }
 
@@ -148,7 +179,7 @@ export class SubagentRunner {
     question: string,
     sources: string[],
   ): Promise<void> {
-    const sourcesList = sources.map((s) => `- ${s}/`).join("\n");
+    const sourcesList = sources.map((s) => `- ./${s}/`).join("\n");
 
     const content = `# Question
 
@@ -156,10 +187,18 @@ ${question}
 
 # Available Sources
 
-The following source directories are available in the current directory:
+The following source directories are available in your current working directory:
 ${sourcesList}
 
-Read the files directly to answer the question.
+## Instructions
+
+1. Use the Glob tool to discover files in these directories (e.g., pattern: "${sources[0]}/**/*.md")
+2. Use the Grep tool to search for relevant content
+3. Use the Read tool to read specific files
+
+You MUST explore and read files from these directories to answer the question. The directories contain documentation and code that will help you provide an accurate answer.
+
+Start by listing files in the source directories to understand their structure.
 `;
 
     await Bun.write(join(tempDir, "prompt.md"), content);
@@ -168,10 +207,19 @@ Read the files directly to answer the question.
   /**
    * Interpolate placeholders in command template
    */
-  private interpolateCommand(template: string, tempDir: string): string {
-    return template
+  private interpolateCommand(
+    template: string,
+    tempDir: string,
+    mcpConfigFile: string | null,
+  ): string {
+    let result = template
       .replace("{prompt_file}", join(tempDir, "prompt.md"))
-      .replace("{mcp_config}", join(tempDir, ".mcp.json"));
+      .replace("{working_dir}", tempDir);
+
+    if (mcpConfigFile) {
+      result = result.replace("{mcp_config_file}", mcpConfigFile);
+    }
+    return result;
   }
 
   /**
