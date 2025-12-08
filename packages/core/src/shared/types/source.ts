@@ -47,3 +47,8 @@ export type Source =
   | DocsSource
   | FileSource
   | DirectorySource;
+
+/**
+ * Union of all source type discriminators
+ */
+export type SourceType = Source["type"];
