@@ -10,8 +10,15 @@ export interface AgentConfig {
     /** Command template for headless mode with {prompt_file} placeholder */
     ask: string;
   };
-  /** Optional custom MCP config filename */
-  mcpConfigFile?: string;
+  /** Flag template for adding directories (e.g., "--add-dir {path}") */
+  addDirFlag?: string;
+  /** MCP configuration for this agent */
+  mcp?: {
+    /** Path relative to working directory (e.g., ".mcp.json", ".cursor/mcp.json") */
+    path: string;
+    /** MCP config content to write */
+    config: Record<string, unknown>;
+  };
 }
 
 /**

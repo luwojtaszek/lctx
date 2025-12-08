@@ -3,6 +3,7 @@
  */
 export interface BaseSource {
   name: string;
+  description?: string;
   lastUpdated?: string;
 }
 
@@ -52,3 +53,11 @@ export type Source =
  * Union of all source type discriminators
  */
 export type SourceType = Source["type"];
+
+/**
+ * Resolved source with name and filesystem path
+ */
+export interface SourcePath {
+  name: string;
+  path: string;
+}
