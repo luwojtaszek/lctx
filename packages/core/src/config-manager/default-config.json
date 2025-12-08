@@ -5,7 +5,7 @@
     "claude-code": {
       "commands": {
         "chat": "claude",
-        "ask": "claude -p {prompt_file}"
+        "ask": "claude -p {prompt_file} --mcp-config {mcp_config}"
       }
     }
   },
