@@ -1,5 +1,13 @@
+# lctx
+
+Local context aggregator for AI coding agents. Manages sources (git repos, docs, local files) and spawns isolated subagents to query them via CLI or MCP.
+
+## Quick Reference
+
+- Verify changes: `./scripts/agent_checks.sh` (run after every implementation)
+
 <!-- OPENSPEC:START -->
-# OpenSpec Instructions
+## OpenSpec Instructions
 
 These instructions are for AI assistants working in this project.
 
@@ -16,5 +24,7 @@ Use `@/openspec/AGENTS.md` to learn:
 Keep this managed block so 'openspec update' can refresh the instructions.
 <!-- OPENSPEC:END -->
 
-# Technology Guidelines
+## Technology Guidelines
+
 - @docs_agent/bun.md
+- @docs_agent/ts-project-structure.md
