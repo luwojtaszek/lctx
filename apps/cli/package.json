@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@lctx/core": "workspace:*"
+    "@lctx/core": "workspace:*",
+    "@lctx/mcp-server": "workspace:*"
   }
 }

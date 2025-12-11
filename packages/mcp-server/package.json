@@ -7,6 +7,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@lctx/core": "workspace:*"
+    "@lctx/core": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.24.3",
+    "zod": "^4.1.13"
   }
 }
