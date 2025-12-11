@@ -1,10 +1,12 @@
 #!/usr/bin/env bun
-import { DefaultPathResolver, FileConfigManager, version } from "@lctx/core";
+import { DefaultPathResolver, FileConfigManager } from "@lctx/core";
+import pkg from "../package.json";
 import {
   addCommand,
   askCommand,
   chatCommand,
   listCommand,
+  mcpCommand,
   removeCommand,
   updateCommand,
 } from "./commands";
@@ -20,6 +22,7 @@ Commands:
   list                 List all sources
   ask                  Ask a question using sources
   chat                 Start an interactive chat session
+  mcp                  Start the MCP server
 
 Options:
   --help, -h           Show this help message
@@ -44,7 +47,7 @@ async function main(): Promise<void> {
 
   // Show version if --version/-v is first arg
   if (command === "--version" || command === "-v") {
-    console.log(version);
+    console.log(pkg.version);
     return;
   }
   const commandArgs = args.slice(1);
@@ -67,6 +70,9 @@ async function main(): Promise<void> {
       break;
     case "chat":
       await chatCommand(commandArgs);
+      break;
+    case "mcp":
+      await mcpCommand();
       break;
     default:
       console.error(`Unknown command: ${command}\n`);
