@@ -1,5 +1,7 @@
 # lctx — Local Context for AI Agents (Research Document)
 
+> **⚠️ ARCHIVED:** This is an initial research document created on 6 December 2025, before any implementation started. It may not reflect the current state of the project.
+
 > **Note:** This is a research and design document exploring the architecture and implementation approach for lctx. It is not a finalized specification.
 
 > **lctx** — Local context aggregator for AI coding agents. Your repos, your docs, your machine.
