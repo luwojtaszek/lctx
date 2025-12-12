@@ -1,5 +1,7 @@
 # lctx Implementation Task Breakdown
 
+> **⚠️ ARCHIVED:** This is an initial research document created on 6 December 2025, before any implementation started. It may not reflect the current state of the project.
+
 Based on analysis of `/docs/lctx-research.md` and current codebase state.
 
 ## Current State
