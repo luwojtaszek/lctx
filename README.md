@@ -99,7 +99,7 @@ For internal module structure and component details, see [Architecture](docs/arc
 ### Install Locally
 
 ```bash
-git clone https://github.com/anthropics/lctx.git
+git clone https://github.com/luwojtaszek/lctx.git
 cd lctx
 bun install && bun link
 ```
