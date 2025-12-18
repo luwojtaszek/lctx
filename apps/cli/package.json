@@ -11,6 +11,12 @@
   },
   "dependencies": {
     "@lctx/core": "workspace:*",
-    "@lctx/mcp-server": "workspace:*"
+    "@lctx/mcp-server": "workspace:*",
+    "ink": "^6.5.1",
+    "react": "^19.2.3"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.7",
+    "ink-testing-library": "^4.0.0"
   }
 }

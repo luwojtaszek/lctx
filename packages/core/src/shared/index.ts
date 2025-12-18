@@ -1,3 +1,3 @@
-export * from "./schemas/index.ts";
-export * from "./types/index.ts";
-export * from "./utils/index.ts";
+export * from "./schemas";
+export * from "./types";
+export * from "./utils";

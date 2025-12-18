@@ -61,3 +61,21 @@ export interface SourcePath {
   name: string;
   path: string;
 }
+
+/**
+ * Display metadata for each source type
+ */
+export interface SourceTypeInfo {
+  type: SourceType;
+  label: string;
+}
+
+/**
+ * All available source types with their display labels
+ */
+export const SOURCE_TYPES: SourceTypeInfo[] = [
+  { type: "git", label: "Git Repository" },
+  { type: "docs", label: "Documentation URL" },
+  { type: "file", label: "Local File" },
+  { type: "directory", label: "Local Directory" },
+];

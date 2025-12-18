@@ -14,19 +14,16 @@ export class GitSourceManager implements SourceManager<GitRepositorySource> {
 
   async add(source: GitRepositorySource): Promise<void> {
     const targetPath = this.getSourcePath(source);
-    const branch = source.branch ?? "main";
 
     await mkdir(join(this.sourcesDirectory, "git"), { recursive: true });
 
-    await this.git([
-      "clone",
-      "--depth",
-      "1",
-      "--branch",
-      branch,
-      source.url,
-      targetPath,
-    ]);
+    const cloneArgs = ["clone", "--depth", "1"];
+    if (source.branch) {
+      cloneArgs.push("--branch", source.branch);
+    }
+    cloneArgs.push(source.url, targetPath);
+
+    await this.git(cloneArgs);
   }
 
   async update(source: GitRepositorySource): Promise<void> {

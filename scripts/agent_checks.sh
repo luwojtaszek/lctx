@@ -114,8 +114,30 @@ run_test() {
     fi
 }
 
+# Check for explicit index imports that should use directory form
+run_import_check() {
+    local tmp_file
+    tmp_file=$(mktemp)
+
+    if grep -rE "from ['\"]\..*\/index(\.js|\.ts)?['\"]" apps packages --include="*.ts" --include="*.tsx" > "$tmp_file" 2>&1; then
+        echo "✗ import-style"
+        echo "Found explicit index imports (use directory form instead):"
+        echo "---"
+        cat "$tmp_file"
+        echo ""
+        echo "Fix: './shared/index.js' → './shared'"
+        rm -f "$tmp_file"
+        return 1
+    else
+        echo "✓ import-style"
+        rm -f "$tmp_file"
+        return 0
+    fi
+}
+
 echo "Running agent checks..."
 run_check "typecheck" "bun run typecheck"
 run_test
 run_check "lint:fix" "bun run lint:fix"
+run_import_check
 echo "All checks passed ✓"
