@@ -1,7 +1,7 @@
 import { createCoreModule } from "@lctx/core";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { version } from "./index.ts";
+import { version } from ".";
 import { registerAskSourcesTool, registerListSourcesTool } from "./tools";
 
 export async function startServer(): Promise<void> {

@@ -11,7 +11,7 @@ Arguments:
   url-or-path   URL (git/docs) or file path (file/directory)
 
 Options:
-  -b, --branch <branch>       Branch to clone (git only, default: main)
+  -b, --branch <branch>       Branch to clone (git only, default: remote default)
   -t, --type <type>           Source type: git, file, directory, docs (default: git)
   -d, --description <text>    Description of the source
   -h, --help                  Show this help message

@@ -1,9 +1,5 @@
 <p align="center">
-  <pre align="center">
-  ╦  ╔═╗╔╦╗═╗ ╦
-  ║  ║   ║ ╔╩╦╝
-  ╩═╝╚═╝ ╩ ╩ ╚═
-  </pre>
+  <img src="docs/assets/logo.svg" alt="lctx logo" width="70" />
 </p>
 
 <p align="center">
@@ -115,41 +111,40 @@ This registers lctx as an MCP server. Claude Code will have access to `list_sour
 ## Usage
 
 ```bash
-# Add documentation (llms.txt or similar)
-lctx add bun https://bun.sh/llms-full.txt -t docs -d "bun.sh full documentation"
+# Launch interactive mode (recommended)
+lctx
 
-# Add a git repository
-lctx add langchain https://github.com/langchain-ai/docs.git -d "LangChain docs"
-
-# Add with specific branch
-lctx add react https://github.com/facebook/react -b v17.0.2
-
-# Query sources (CLI)
+# Direct commands for scripting
 lctx ask -s bun -q "How to resolve version from package.json?"
-
-# Interactive chat session
 lctx chat -s langchain bun
-
-# List all sources
-lctx list
+lctx sync [name]
+lctx mcp
 ```
 
 From Claude Code, just ask naturally: `How to write an agent in LangGraph? ask lctx`
 
+## Interactive Mode
+
+Running `lctx` without arguments launches an interactive terminal UI with visual menus for managing sources.
+
+### Main Menu
+
+- **Sources** — View, add, edit, and sync sources in a table view
+- **Ask** — Select sources and ask questions with responses displayed inline
+- **Help** — View usage information
+
 ## Command Reference
 
-| Command                               | Description                                             |
-|---------------------------------------|---------------------------------------------------------|
-| `lctx add <name> <url>`               | Add a source (git repo, docs URL, file, or directory)   |
-| `lctx add <name> <url> -t <type>`     | Specify source type: `git`, `docs`, `file`, `directory` |
-| `lctx add <name> <url> -b <branch>`   | Clone specific branch/tag (git sources)                 |
-| `lctx add <name> <url> -d <desc>`     | Add description for the source                          |
-| `lctx remove <name>`                  | Remove a source                                         |
-| `lctx update [name]`                  | Update one source or all sources                        |
-| `lctx list`                           | List all configured sources                             |
-| `lctx ask -s <sources> -q <question>` | Query sources in headless mode                          |
-| `lctx chat -s <sources>`              | Start interactive session with sources                  |
-| `lctx mcp`                            | Start MCP server (stdio transport)                      |
+| Command                               | Mode        | Description                                           |
+|---------------------------------------|-------------|-------------------------------------------------------|
+| `lctx`                                | Interactive | Launch interactive mode with Sources, Ask, Help       |
+| `lctx ask -s <sources> -q <question>` | Direct      | Query sources in headless mode                        |
+| `lctx chat -s <sources>`              | Direct      | Start interactive chat session with sources           |
+| `lctx sync [name]`                    | Direct      | Sync one source or all sources                        |
+| `lctx mcp`                            | Direct      | Start MCP server (stdio transport)                    |
+| `lctx help`                           | Direct      | Display help information                              |
+
+> **Note:** Source management (add, remove, list) is now available in interactive mode only. Use `lctx` to access the Sources screen.
 
 ## Source Types
 
