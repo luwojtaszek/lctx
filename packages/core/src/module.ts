@@ -7,7 +7,7 @@ import {
   GitSourceManager,
   SourcesManager,
 } from "./source-manager";
-import { SubagentRunner } from "./subagent-runner";
+import { FilePromptTemplateLoader, SubagentRunner } from "./subagent-runner";
 
 export interface CoreModule {
   configManager: ConfigManager;
@@ -27,7 +27,15 @@ export async function createCoreModule(): Promise<CoreModule> {
     new DocsSourceManager(config.sourcesDirectory),
   ]);
 
-  const subagentRunner = new SubagentRunner(configManager, sourcesManager);
+  const promptTemplateLoader = new FilePromptTemplateLoader(
+    configManager.getConfigDirectory(),
+  );
+
+  const subagentRunner = new SubagentRunner(
+    configManager,
+    sourcesManager,
+    promptTemplateLoader,
+  );
 
   return { configManager, sourcesManager, subagentRunner };
 }

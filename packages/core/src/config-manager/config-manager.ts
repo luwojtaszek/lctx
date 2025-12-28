@@ -10,6 +10,7 @@ const DEFAULT_CONFIG_PATH = "~/.config/lctx/config.json";
 export interface ConfigManager {
   readonly configPath: string;
   expandPath(path: string): string;
+  getConfigDirectory(): string;
   load(configPath?: string): Promise<LctxConfig>;
   save(config: LctxConfig, configPath?: string): Promise<void>;
 }
@@ -26,6 +27,11 @@ export class FileConfigManager implements ConfigManager {
 
   expandPath(path: string): string {
     return this.pathResolver.expandPath(path);
+  }
+
+  getConfigDirectory(): string {
+    const expandedPath = this.pathResolver.expandPath(this.defaultConfigPath);
+    return dirname(expandedPath);
   }
 
   async load(configPath: string = this.defaultConfigPath): Promise<LctxConfig> {

@@ -3,13 +3,28 @@ import { mkdir, readlink, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { SubagentRunner } from "../../../src";
-import type { ConfigManager, LctxConfig, SourcesManager } from "../../../src";
+import type {
+  ConfigManager,
+  LctxConfig,
+  PromptTemplateLoader,
+  SourcesManager,
+} from "../../../src";
 import defaultConfig from "../../../src/config-manager/default-config.json";
+
+const DEFAULT_TEMPLATE = `# Question
+
+\${question}
+
+# Available Sources
+
+\${sourcesList}
+`;
 
 describe("SubagentRunner", () => {
   let testDir: string;
   let mockConfigManager: ConfigManager;
   let mockSourcesManager: SourcesManager;
+  let mockPromptTemplateLoader: PromptTemplateLoader;
   let runner: SubagentRunner;
   let originalBunSpawn: typeof Bun.spawn;
 
@@ -51,8 +66,13 @@ describe("SubagentRunner", () => {
     mockConfigManager = {
       configPath: join(testDir, "config.json"),
       expandPath: (path: string) => path.replace("~", testDir),
+      getConfigDirectory: () => testDir,
       load: mock(() => Promise.resolve({ ...defaultConfig })),
       save: mock(() => Promise.resolve()),
+    };
+
+    mockPromptTemplateLoader = {
+      load: mock(() => Promise.resolve(DEFAULT_TEMPLATE)),
     };
 
     mockSourcesManager = {
@@ -85,7 +105,11 @@ describe("SubagentRunner", () => {
       "# LangGraph",
     );
 
-    runner = new SubagentRunner(mockConfigManager, mockSourcesManager);
+    runner = new SubagentRunner(
+      mockConfigManager,
+      mockSourcesManager,
+      mockPromptTemplateLoader,
+    );
 
     originalBunSpawn = Bun.spawn;
   });
@@ -213,9 +237,6 @@ describe("SubagentRunner", () => {
       expect(promptContent).toContain("# Available Sources");
       expect(promptContent).toContain("- ./langchain/");
       expect(promptContent).toContain("- ./langgraph/");
-      expect(promptContent).toContain(
-        "You MUST explore and read files from these directories",
-      );
     });
 
     test("interpolates command template placeholders", async () => {

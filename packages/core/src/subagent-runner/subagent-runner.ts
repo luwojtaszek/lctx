@@ -3,6 +3,7 @@ import { dirname, join } from "node:path";
 import type { ConfigManager } from "../config-manager";
 import type { AskOptions, AskResult, ChatOptions, SourcePath } from "../shared";
 import type { SourcesManager } from "../source-manager";
+import type { PromptTemplateLoader } from "./prompt-template-loader";
 
 /**
  * Executes AI agents in isolated temp directories with access to configured sources.
@@ -12,6 +13,7 @@ export class SubagentRunner {
   constructor(
     private readonly configManager: ConfigManager,
     private readonly sourcesManager: SourcesManager,
+    private readonly promptTemplateLoader: PromptTemplateLoader,
   ) {}
 
   /**
@@ -79,10 +81,15 @@ export class SubagentRunner {
       }
 
       const sourcePaths = await this.resolveSourcePaths(options.sources);
-      await this.writeMcpConfig(tempDir, agentConfig.mcp);
+      const mcpConfigFile = await this.writeMcpConfig(tempDir, agentConfig.mcp);
       await this.createSourceSymlinks(tempDir, sourcePaths);
 
-      const baseArgs = this.parseCommand(agentConfig.commands.chat);
+      const command = this.interpolateCommand(
+        agentConfig.commands.chat,
+        tempDir,
+        mcpConfigFile,
+      );
+      const baseArgs = this.parseCommand(command);
       const addDirArgs = this.buildAddDirArgs(
         agentConfig.addDirFlag,
         sourcePaths,
@@ -180,26 +187,11 @@ export class SubagentRunner {
     sources: string[],
   ): Promise<void> {
     const sourcesList = sources.map((s) => `- ./${s}/`).join("\n");
+    const template = await this.promptTemplateLoader.load();
 
-    const content = `# Question
-
-${question}
-
-# Available Sources
-
-The following source directories are available in your current working directory:
-${sourcesList}
-
-## Instructions
-
-1. Use the Glob tool to discover files in these directories (e.g., pattern: "${sources[0]}/**/*.md")
-2. Use the Grep tool to search for relevant content
-3. Use the Read tool to read specific files
-
-You MUST explore and read files from these directories to answer the question. The directories contain documentation and code that will help you provide an accurate answer.
-
-Start by listing files in the source directories to understand their structure.
-`;
+    const content = template
+      .replace("${question}", question)
+      .replace("${sourcesList}", sourcesList);
 
     await Bun.write(join(tempDir, "prompt.md"), content);
   }
