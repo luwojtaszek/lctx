@@ -30,3 +30,13 @@ ${sourcesList}
 
 - Do NOT hallucinate paths or APIs not in sources
 - Do NOT summarize without showing the actual code/text
+
+# Output Requirements
+
+**CRITICAL:** You are running in headless mode as a subagent. Your stdout is captured and returned to a master AI agent.
+
+- Output your COMPLETE answer directly to stdout
+- Do NOT enter plan mode or write plan files - the master agent CANNOT access files you create
+- Do NOT output summaries like "Plan ready for review" - provide the actual content inline
+- Include all code examples, explanations, and details directly in your response
+- If the question asks for code, output the full code, not references to files
