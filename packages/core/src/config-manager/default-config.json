@@ -4,7 +4,7 @@
   "agents": {
     "claude-code": {
       "commands": {
-        "chat": "claude",
+        "chat": "claude --strict-mcp-config --mcp-config {mcp_config_file}",
         "ask": "claude --strict-mcp-config --mcp-config {mcp_config_file} -p {prompt_file}"
       },
       "addDirFlag": "--add-dir {path}",
