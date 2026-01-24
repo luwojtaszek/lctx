@@ -88,16 +88,38 @@ For internal module structure and component details, see [Architecture](docs/arc
 
 ## Getting Started
 
-### Prerequisites
+### Quick Install (Recommended)
 
-- [Bun](https://bun.sh) 1.0 or higher
+```bash
+curl -fsSL https://raw.githubusercontent.com/luwojtaszek/lctx/main/scripts/install.sh | bash
+```
 
-### Install Locally
+This downloads the latest binary to `~/.local/bin`. Make sure this directory is in your PATH.
+
+### Manual Download
+
+Download the latest binary for your platform from [GitHub Releases](https://github.com/luwojtaszek/lctx/releases).
+
+### Install from Source
+
+Prerequisites: [Bun](https://bun.sh) 1.0 or higher
 
 ```bash
 git clone https://github.com/luwojtaszek/lctx.git
 cd lctx
 bun install && bun link
+```
+
+### Updating
+
+```bash
+lctx upgrade
+```
+
+Or check for updates without installing:
+
+```bash
+lctx upgrade --check
 ```
 
 ### Add to Claude Code (MCP)

@@ -22,7 +22,7 @@ const KEYS = {
 };
 
 // Helper to wait for React state updates
-const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
+const tick = () => new Promise((resolve) => setTimeout(resolve, 10));
 
 describe("SelectInput", () => {
   test("renders all items", () => {

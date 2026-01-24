@@ -8,3 +8,4 @@ export {
 export { Table, type Column } from "./Table.js";
 export { Logo } from "./Logo.js";
 export { HintBar } from "./HintBar.js";
+export { UpdateBanner } from "./UpdateBanner.js";

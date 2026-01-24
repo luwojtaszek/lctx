@@ -1,0 +1,151 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.3.3"
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Configure Git
+        run: |
+          git config --global user.email "ci@github.actions"
+          git config --global user.name "GitHub Actions"
+          git config --global init.defaultBranch main
+
+      - name: Typecheck
+        run: bun run typecheck
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Test
+        run: bun test
+
+      - name: Build validation
+        run: |
+          bun build apps/cli/src/index.ts --compile --outfile=/tmp/lctx-test
+          /tmp/lctx-test --version
+
+  release-please:
+    name: Release Please
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+      version: ${{ steps.release.outputs.version }}
+    steps:
+      - name: Release Please
+        id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          config-file: .github/release-please-config.json
+          manifest-file: .github/.release-please-manifest.json
+
+  build-binaries:
+    name: Build ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: bun-linux-x64
+            artifact: lctx-linux-x64
+          - os: ubuntu-latest
+            target: bun-linux-arm64
+            artifact: lctx-linux-arm64
+          - os: macos-latest
+            target: bun-darwin-x64
+            artifact: lctx-darwin-x64
+          - os: macos-latest
+            target: bun-darwin-arm64
+            artifact: lctx-darwin-arm64
+          - os: windows-latest
+            target: bun-windows-x64
+            artifact: lctx-windows-x64.exe
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.3.3"
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build binary
+        run: bun build apps/cli/src/index.ts --compile --target=${{ matrix.target }} --outfile=${{ matrix.artifact }}
+
+      - name: Create tarball (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          chmod +x ${{ matrix.artifact }}
+          tar -czvf ${{ matrix.artifact }}.tar.gz ${{ matrix.artifact }}
+
+      - name: Create zip (Windows)
+        if: runner.os == 'Windows'
+        run: Compress-Archive -Path ${{ matrix.artifact }} -DestinationPath ${{ matrix.artifact }}.zip
+
+      - name: Upload to release (Unix)
+        if: runner.os != 'Windows'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.release-please.outputs.tag_name }}
+          files: ${{ matrix.artifact }}.tar.gz
+
+      - name: Upload to release (Windows)
+        if: runner.os == 'Windows'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.release-please.outputs.tag_name }}
+          files: ${{ matrix.artifact }}.zip
+
+  checksums:
+    name: Generate checksums
+    runs-on: ubuntu-latest
+    needs: [release-please, build-binaries]
+    if: needs.release-please.outputs.release_created == 'true'
+    steps:
+      - name: Download all artifacts
+        uses: robinraju/release-downloader@v1
+        with:
+          tag: ${{ needs.release-please.outputs.tag_name }}
+          fileName: "*"
+          out-file-path: artifacts
+
+      - name: Generate checksums
+        run: |
+          cd artifacts
+          sha256sum * > checksums.txt
+          cat checksums.txt
+
+      - name: Upload checksums
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.release-please.outputs.tag_name }}
+          files: artifacts/checksums.txt

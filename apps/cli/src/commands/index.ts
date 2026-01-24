@@ -5,3 +5,4 @@ export { listCommand } from "./list.ts";
 export { askCommand } from "./ask.ts";
 export { chatCommand } from "./chat.ts";
 export { mcpCommand } from "./mcp.ts";
+export { upgradeCommand } from "./upgrade.ts";

@@ -1,11 +1,12 @@
 import { useApp, useInput } from "ink";
 import { useEffect, useState } from "react";
 import { version } from "..";
+import { type VersionInfo, checkForUpdates } from "../shared";
 import { AskScreen } from "./AskScreen.js";
 import { HelpScreen } from "./HelpScreen.js";
 import { MainMenu, type Screen } from "./MainMenu.js";
 import { SourcesScreen } from "./SourcesScreen.js";
-import { HintBar } from "./shared";
+import { HintBar, UpdateBanner } from "./shared";
 import { AppContext } from "./shared/AppContext.js";
 
 export function App() {
@@ -13,6 +14,7 @@ export function App() {
   const [suppressExit, setSuppressExit] = useState(false);
   const [showBackHint, setShowBackHint] = useState(false);
   const [showExitHint, setShowExitHint] = useState(false);
+  const [updateInfo, setUpdateInfo] = useState<VersionInfo | null>(null);
   const { exit } = useApp();
 
   useInput((input, key) => {
@@ -20,6 +22,19 @@ export function App() {
       exit();
     }
   });
+
+  // Check for updates on mount
+  useEffect(() => {
+    checkForUpdates()
+      .then((info) => {
+        if (info.hasUpdate) {
+          setUpdateInfo(info);
+        }
+      })
+      .catch(() => {
+        // Silently ignore update check failures
+      });
+  }, []);
 
   // Auto-hide exit hint after 1.5s
   useEffect(() => {
@@ -45,6 +60,12 @@ export function App() {
         setShowExitHint,
       }}
     >
+      {updateInfo && (
+        <UpdateBanner
+          versionInfo={updateInfo}
+          onDismiss={() => setUpdateInfo(null)}
+        />
+      )}
       {screen === "menu" && (
         <MainMenu version={version} onNavigate={setScreen} />
       )}

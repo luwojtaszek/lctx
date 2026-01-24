@@ -11,6 +11,7 @@ import {
   mcpCommand,
   removeCommand,
   syncCommand,
+  upgradeCommand,
 } from "./commands";
 import { App } from "./components";
 
@@ -27,6 +28,7 @@ Commands:
   ask                  Ask a question using sources
   chat                 Start an interactive chat session
   mcp                  Start the MCP server
+  upgrade              Check for and install updates
   help                 Show this help message
 
 Legacy Commands (use interactive mode instead):
@@ -110,6 +112,9 @@ async function main(): Promise<void> {
       break;
     case "mcp":
       await mcpCommand();
+      break;
+    case "upgrade":
+      await upgradeCommand(commandArgs);
       break;
     default:
       console.error(`Unknown command: ${command}\n`);
