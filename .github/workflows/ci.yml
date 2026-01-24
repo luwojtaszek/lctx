@@ -26,6 +26,12 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Configure Git
+        run: |
+          git config --global user.email "ci@github.actions"
+          git config --global user.name "GitHub Actions"
+          git config --global init.defaultBranch main
+
       - name: Typecheck
         run: bun run typecheck
 
