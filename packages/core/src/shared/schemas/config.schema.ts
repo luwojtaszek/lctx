@@ -1,6 +1,12 @@
 import { z } from "zod";
 import { SourceSchema } from "./source.schema.ts";
 
+export const SourceGroupSchema = z.object({
+  name: z.string(),
+  description: z.string().optional(),
+  sources: z.array(z.string()),
+});
+
 export const AgentConfigSchema = z.object({
   commands: z.object({
     chat: z.string(),
@@ -20,4 +26,5 @@ export const LctxConfigSchema = z.object({
   sources: z.array(SourceSchema),
   agents: z.record(z.string(), AgentConfigSchema),
   defaultAgent: z.string(),
+  groups: z.record(z.string(), SourceGroupSchema).default({}),
 });

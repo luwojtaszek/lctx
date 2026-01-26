@@ -1,7 +1,14 @@
 import { Box } from "ink";
 import { Logo, SelectInput, type SelectItem } from "./shared";
 
-export type Screen = "menu" | "sources" | "ask" | "help";
+export type Screen =
+  | "menu"
+  | "sources"
+  | "groups"
+  | "health"
+  | "marketplace"
+  | "ask"
+  | "help";
 
 interface MainMenuProps {
   version: string;
@@ -10,8 +17,11 @@ interface MainMenuProps {
 
 const menuItems: SelectItem<Screen>[] = [
   { label: "Sources", value: "sources", shortcut: "s" },
+  { label: "Groups", value: "groups", shortcut: "g" },
+  { label: "Health", value: "health", shortcut: "h" },
+  { label: "Marketplace", value: "marketplace", shortcut: "m" },
   { label: "Ask", value: "ask", shortcut: "a" },
-  { label: "Help", value: "help", shortcut: "h" },
+  { label: "Help", value: "help", shortcut: "?" },
 ];
 
 export function MainMenu({ version, onNavigate }: MainMenuProps) {

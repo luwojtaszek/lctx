@@ -266,10 +266,11 @@ export function SourcesScreen({ onBack }: SourcesScreenProps) {
 
       <Box marginTop={1} flexDirection="column">
         <Text color="gray">
-          [<Text color="cyan">a</Text>] Add{"  "}[<Text color="cyan">d</Text>]
-          Delete{"  "}[<Text color="cyan">u</Text>] Update{"  "}[
-          <Text color="cyan">s</Text>] Sync{"  "}[<Text color="cyan">S</Text>]
-          Sync All
+          <Text color="cyan">[a]</Text> Add{"  "}
+          <Text color="cyan">[d]</Text> Delete{"  "}
+          <Text color="cyan">[u]</Text> Update{"  "}
+          <Text color="cyan">[s]</Text> Sync{"  "}
+          <Text color="cyan">[S]</Text> Sync All
         </Text>
       </Box>
     </Box>

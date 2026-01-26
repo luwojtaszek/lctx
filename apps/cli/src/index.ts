@@ -4,12 +4,13 @@ import { render } from "ink";
 import { createElement } from "react";
 import pkg from "../package.json";
 import {
-  addCommand,
   askCommand,
   chatCommand,
-  listCommand,
+  groupCommand,
+  healthCommand,
+  marketplaceCommand,
   mcpCommand,
-  removeCommand,
+  sourceCommand,
   syncCommand,
   upgradeCommand,
 } from "./commands";
@@ -24,17 +25,15 @@ Usage: lctx <command> [options]
 Run without arguments to start interactive mode.
 
 Commands:
-  sync [name]          Sync source(s)
+  source               Manage sources (add, remove, list, sync)
+  group                Manage source groups
+  health [name]        Check health of sources
+  marketplace          Browse and install source collections
   ask                  Ask a question using sources
   chat                 Start an interactive chat session
   mcp                  Start the MCP server
   upgrade              Check for and install updates
   help                 Show this help message
-
-Legacy Commands (use interactive mode instead):
-  add <name> <url>     Add a new source
-  remove <name>        Remove a source
-  list                 List all sources
 
 Options:
   --help, -h           Show this help message
@@ -42,11 +41,19 @@ Options:
 
 Run 'lctx <command> --help' for more information on a command.`;
 
-// Commands that remain available in direct CLI mode
-const persistentCommands = ["help", "ask", "chat", "mcp", "sync"];
-
-// Legacy commands that show deprecation warning
-const legacyCommands = ["add", "remove", "list"];
+// Commands available in direct CLI mode
+const availableCommands = [
+  "help",
+  "source",
+  "group",
+  "health",
+  "marketplace",
+  "ask",
+  "chat",
+  "mcp",
+  "sync",
+  "upgrade",
+];
 
 async function main(): Promise<void> {
   const args = Bun.argv.slice(2);
@@ -77,38 +84,27 @@ async function main(): Promise<void> {
 
   const commandArgs = args.slice(1);
 
-  // Legacy commands - show deprecation warning but still execute
-  if (legacyCommands.includes(command)) {
-    console.warn(
-      `Warning: The '${command}' command is deprecated. Use interactive mode (run 'lctx' without arguments) instead.\n`,
-    );
-  }
-
   switch (command) {
-    case "add":
-      await addCommand(commandArgs);
+    case "source":
+      await sourceCommand(commandArgs);
       break;
-    case "remove":
-      await removeCommand(commandArgs);
+    case "group":
+      await groupCommand(commandArgs);
       break;
-    case "sync":
-      await syncCommand(commandArgs);
+    case "health":
+      await healthCommand(commandArgs);
       break;
-    case "update":
-      // Keep for backwards compatibility, redirect to sync
-      console.warn(
-        "Warning: 'update' has been renamed to 'sync'. Please use 'lctx sync' instead.\n",
-      );
-      await syncCommand(commandArgs);
-      break;
-    case "list":
-      await listCommand(commandArgs);
+    case "marketplace":
+      await marketplaceCommand(commandArgs);
       break;
     case "ask":
       await askCommand(commandArgs);
       break;
     case "chat":
       await chatCommand(commandArgs);
+      break;
+    case "sync":
+      await syncCommand(commandArgs);
       break;
     case "mcp":
       await mcpCommand();

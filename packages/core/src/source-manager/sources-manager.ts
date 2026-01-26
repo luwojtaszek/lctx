@@ -1,5 +1,11 @@
 import type { ConfigManager } from "../config-manager";
-import type { LctxConfig, Source, SourcePath, SourceType } from "../shared";
+import type {
+  LctxConfig,
+  Source,
+  SourceHealth,
+  SourcePath,
+  SourceType,
+} from "../shared";
 import type { SourceManager } from "./source-manager";
 
 /**
@@ -82,6 +88,30 @@ export class SourcesManager {
   async getSource(name: string): Promise<Source | undefined> {
     const config = await this.getConfig();
     return this.findSource(config, name);
+  }
+
+  async checkHealth(name: string): Promise<SourceHealth | undefined> {
+    const config = await this.getConfig();
+    const source = this.findSource(config, name);
+    if (!source) {
+      return undefined;
+    }
+
+    const manager = this.getManager(source.type);
+    return manager.checkHealth(source);
+  }
+
+  async checkHealthAll(): Promise<SourceHealth[]> {
+    const config = await this.getConfig();
+    const results: SourceHealth[] = [];
+
+    for (const source of config.sources) {
+      const manager = this.getManager(source.type);
+      const health = await manager.checkHealth(source);
+      results.push(health);
+    }
+
+    return results;
   }
 
   private findSource(config: LctxConfig, name: string): Source | undefined {

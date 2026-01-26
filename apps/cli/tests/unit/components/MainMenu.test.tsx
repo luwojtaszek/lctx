@@ -1,6 +1,6 @@
 import { describe, expect, mock, test } from "bun:test";
 import { render } from "ink-testing-library";
-import { MainMenu, type Screen } from "../../../src/components";
+import { MainMenu, type Screen } from "../../../src/components/MainMenu.js";
 
 // Helper to wait for React state updates
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
@@ -36,8 +36,10 @@ describe("MainMenu", () => {
     const frame = lastFrame();
 
     expect(frame).toContain("[s]");
-    expect(frame).toContain("[a]");
+    expect(frame).toContain("[g]");
     expect(frame).toContain("[h]");
+    expect(frame).toContain("[a]");
+    expect(frame).toContain("[?]");
   });
 
   test("selecting Sources calls onNavigate with sources", async () => {
@@ -83,13 +85,26 @@ describe("MainMenu", () => {
     expect(onNavigate).toHaveBeenCalledWith("ask");
   });
 
-  test("shortcut h triggers Help navigation", async () => {
+  test("shortcut h triggers Health navigation", async () => {
     const onNavigate = mock((screen: Screen) => {});
     const { stdin } = render(
       <MainMenu version="1.0.0" onNavigate={onNavigate} />,
     );
 
     stdin.write("h");
+    await tick();
+
+    expect(onNavigate).toHaveBeenCalledTimes(1);
+    expect(onNavigate).toHaveBeenCalledWith("health");
+  });
+
+  test("shortcut ? triggers Help navigation", async () => {
+    const onNavigate = mock((screen: Screen) => {});
+    const { stdin } = render(
+      <MainMenu version="1.0.0" onNavigate={onNavigate} />,
+    );
+
+    stdin.write("?");
     await tick();
 
     expect(onNavigate).toHaveBeenCalledTimes(1);

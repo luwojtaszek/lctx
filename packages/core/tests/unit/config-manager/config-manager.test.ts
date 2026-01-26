@@ -61,6 +61,7 @@ describe("ConfigManager", () => {
           },
         },
         defaultAgent: "claude-code",
+        groups: {},
       };
       const testPath = join(testDir, ".config/lctx/nested/deep/config.json");
 
@@ -86,6 +87,7 @@ describe("ConfigManager", () => {
           },
         },
         defaultAgent: "claude-code",
+        groups: {},
       };
       const testPath = join(testDir, ".config/lctx/config.json");
 

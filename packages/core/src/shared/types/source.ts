@@ -79,3 +79,28 @@ export const SOURCE_TYPES: SourceTypeInfo[] = [
   { type: "file", label: "Local File" },
   { type: "directory", label: "Local Directory" },
 ];
+
+/**
+ * Health status of a source
+ */
+export type SourceHealthStatus = "healthy" | "stale" | "error" | "unknown";
+
+/**
+ * Health information for a source
+ */
+export interface SourceHealth {
+  name: string;
+  type: SourceType;
+  status: SourceHealthStatus;
+  lastSynced?: string;
+  staleDays?: number;
+  errorMessage?: string;
+  details?: {
+    // Git-specific
+    behindCommits?: number;
+    currentBranch?: string;
+    // Docs-specific
+    remoteModified?: string;
+    localSize?: number;
+  };
+}

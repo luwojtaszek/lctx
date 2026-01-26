@@ -1,4 +1,4 @@
-import type { Source } from "../shared";
+import type { Source, SourceHealth } from "../shared";
 
 /**
  * Interface for type-specific source operations with internal path handling.
@@ -11,4 +11,5 @@ export interface SourceManager<T extends Source> {
   update(source: T): Promise<void>;
   delete(source: T): Promise<void>;
   getSourcePath(source: T): string;
+  checkHealth(source: T): Promise<SourceHealth>;
 }
