@@ -1,4 +1,5 @@
-import type { FileSource } from "../shared";
+import { stat } from "node:fs/promises";
+import type { FileSource, SourceHealth } from "../shared";
 import type { SourceManager } from "./source-manager";
 
 /**
@@ -24,5 +25,24 @@ export class FileSourceManager implements SourceManager<FileSource> {
 
   getSourcePath(source: FileSource): string {
     return source.path;
+  }
+
+  async checkHealth(source: FileSource): Promise<SourceHealth> {
+    try {
+      await stat(source.path);
+      return {
+        name: source.name,
+        type: "file",
+        status: "healthy",
+        lastSynced: source.lastUpdated,
+      };
+    } catch {
+      return {
+        name: source.name,
+        type: "file",
+        status: "error",
+        errorMessage: "File not found",
+      };
+    }
   }
 }

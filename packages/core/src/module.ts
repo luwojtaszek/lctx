@@ -1,4 +1,6 @@
 import { type ConfigManager, FileConfigManager } from "./config-manager";
+import { FileGroupManager, type GroupManager } from "./group-manager";
+import { FileMarketplaceManager, type MarketplaceManager } from "./marketplace";
 import { DefaultPathResolver } from "./shared";
 import {
   DirectorySourceManager,
@@ -12,6 +14,8 @@ import { FilePromptTemplateLoader, SubagentRunner } from "./subagent-runner";
 export interface CoreModule {
   configManager: ConfigManager;
   sourcesManager: SourcesManager;
+  groupManager: GroupManager;
+  marketplaceManager: MarketplaceManager;
   subagentRunner: SubagentRunner;
 }
 
@@ -27,6 +31,9 @@ export async function createCoreModule(): Promise<CoreModule> {
     new DocsSourceManager(config.sourcesDirectory),
   ]);
 
+  const groupManager = new FileGroupManager(configManager);
+  const marketplaceManager = new FileMarketplaceManager(sourcesManager);
+
   const promptTemplateLoader = new FilePromptTemplateLoader(
     configManager.getConfigDirectory(),
   );
@@ -37,5 +44,11 @@ export async function createCoreModule(): Promise<CoreModule> {
     promptTemplateLoader,
   );
 
-  return { configManager, sourcesManager, subagentRunner };
+  return {
+    configManager,
+    sourcesManager,
+    groupManager,
+    marketplaceManager,
+    subagentRunner,
+  };
 }

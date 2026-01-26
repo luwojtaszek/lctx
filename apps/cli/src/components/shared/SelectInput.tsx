@@ -57,7 +57,8 @@ export function SelectInput<T = string>({
             <Text color={isSelected ? "cyan" : undefined}>
               {item.shortcut ? (
                 <>
-                  {"  "}[<Text color="cyan">{item.shortcut}</Text>] {item.label}
+                  {"  "}
+                  <Text color="cyan">[{item.shortcut}]</Text> {item.label}
                 </>
               ) : (
                 <>

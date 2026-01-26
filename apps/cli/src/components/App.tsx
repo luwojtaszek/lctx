@@ -3,8 +3,11 @@ import { useEffect, useState } from "react";
 import { version } from "..";
 import { type VersionInfo, checkForUpdates } from "../shared";
 import { AskScreen } from "./AskScreen.js";
+import { GroupsScreen } from "./GroupsScreen.js";
+import { HealthDashboard } from "./HealthDashboard.js";
 import { HelpScreen } from "./HelpScreen.js";
 import { MainMenu, type Screen } from "./MainMenu.js";
+import { MarketplaceScreen } from "./MarketplaceScreen.js";
 import { SourcesScreen } from "./SourcesScreen.js";
 import { HintBar, UpdateBanner } from "./shared";
 import { AppContext } from "./shared/AppContext.js";
@@ -70,6 +73,9 @@ export function App() {
         <MainMenu version={version} onNavigate={setScreen} />
       )}
       {screen === "sources" && <SourcesScreen onBack={handleBack} />}
+      {screen === "groups" && <GroupsScreen onBack={handleBack} />}
+      {screen === "health" && <HealthDashboard onBack={handleBack} />}
+      {screen === "marketplace" && <MarketplaceScreen onBack={handleBack} />}
       {screen === "ask" && <AskScreen onBack={handleBack} />}
       {screen === "help" && <HelpScreen onBack={handleBack} />}
       <HintBar />

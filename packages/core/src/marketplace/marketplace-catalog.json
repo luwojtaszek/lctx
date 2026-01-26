@@ -1,0 +1,160 @@
+{
+  "items": [
+    {
+      "id": "anthropic",
+      "name": "Anthropic Claude",
+      "description": "MCP documentation for Claude",
+      "category": "ai",
+      "sources": [
+        {
+          "type": "docs",
+          "name": "mcp-docs",
+          "url": "https://modelcontextprotocol.io/llms-full.txt",
+          "description": "Model Context Protocol documentation"
+        }
+      ],
+      "tags": ["claude", "mcp", "ai", "llm"]
+    },
+    {
+      "id": "vercel-ai",
+      "name": "Vercel AI SDK",
+      "description": "AI SDK for React, Next.js, Vue, Svelte",
+      "category": "ai",
+      "sources": [
+        {
+          "type": "docs",
+          "name": "ai-sdk-docs",
+          "url": "https://ai-sdk.dev/llms.txt",
+          "description": "Vercel AI SDK documentation"
+        }
+      ],
+      "tags": ["vercel", "ai", "react", "nextjs"]
+    },
+    {
+      "id": "crewai",
+      "name": "CrewAI",
+      "description": "Multi-agent AI framework",
+      "category": "ai",
+      "sources": [
+        {
+          "type": "docs",
+          "name": "crewai-docs",
+          "url": "https://docs.crewai.com/llms.txt",
+          "description": "CrewAI documentation"
+        }
+      ],
+      "tags": ["agents", "ai", "multi-agent"]
+    },
+    {
+      "id": "elevenlabs",
+      "name": "ElevenLabs",
+      "description": "AI voice generation",
+      "category": "ai",
+      "sources": [
+        {
+          "type": "docs",
+          "name": "elevenlabs-docs",
+          "url": "https://elevenlabs.io/docs/llms.txt",
+          "description": "ElevenLabs API documentation"
+        }
+      ],
+      "tags": ["voice", "ai", "tts", "audio"]
+    },
+    {
+      "id": "nextjs",
+      "name": "Next.js",
+      "description": "React framework by Vercel",
+      "category": "framework",
+      "sources": [
+        {
+          "type": "docs",
+          "name": "nextjs-docs",
+          "url": "https://nextjs.org/docs/llms-full.txt",
+          "description": "Next.js full documentation"
+        }
+      ],
+      "tags": ["react", "nextjs", "vercel", "frontend"]
+    },
+    {
+      "id": "svelte",
+      "name": "Svelte & SvelteKit",
+      "description": "Svelte framework and SvelteKit",
+      "category": "framework",
+      "sources": [
+        {
+          "type": "docs",
+          "name": "svelte-docs",
+          "url": "https://svelte.dev/llms-full.txt",
+          "description": "Svelte full documentation"
+        }
+      ],
+      "tags": ["svelte", "sveltekit", "frontend"]
+    },
+    {
+      "id": "hono",
+      "name": "Hono",
+      "description": "Ultrafast web framework for any JS runtime",
+      "category": "framework",
+      "sources": [
+        {
+          "type": "docs",
+          "name": "hono-docs",
+          "url": "https://hono.dev/llms-full.txt",
+          "description": "Hono documentation"
+        }
+      ],
+      "tags": ["hono", "backend", "cloudflare", "bun", "deno"]
+    },
+    {
+      "id": "bun",
+      "name": "Bun",
+      "description": "All-in-one JavaScript runtime",
+      "category": "runtime",
+      "sources": [
+        {
+          "type": "docs",
+          "name": "bun-docs",
+          "url": "https://bun.sh/llms-full.txt",
+          "description": "Bun full documentation"
+        }
+      ],
+      "tags": ["bun", "runtime", "bundler", "typescript"]
+    },
+    {
+      "id": "mcp-sdk",
+      "name": "MCP TypeScript SDK",
+      "description": "Build MCP servers in TypeScript",
+      "category": "tool",
+      "sources": [
+        {
+          "type": "git",
+          "name": "mcp-typescript-sdk",
+          "url": "https://github.com/modelcontextprotocol/typescript-sdk.git",
+          "description": "MCP TypeScript SDK source"
+        },
+        {
+          "type": "docs",
+          "name": "mcp-docs",
+          "url": "https://modelcontextprotocol.io/llms-full.txt",
+          "description": "MCP documentation"
+        }
+      ],
+      "tags": ["mcp", "typescript", "sdk"]
+    },
+    {
+      "id": "claude-code",
+      "name": "Claude Code",
+      "description": "Anthropic's official CLI for Claude",
+      "category": "ai",
+      "sources": [
+        {
+          "type": "git",
+          "name": "claude-code-docs",
+          "url": "https://github.com/ericbuess/claude-code-docs.git",
+          "description": "Claude Code documentation"
+        }
+      ],
+      "tags": ["claude", "cli", "anthropic", "ai", "coding"]
+    }
+  ]
+}

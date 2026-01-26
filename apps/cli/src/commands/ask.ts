@@ -4,21 +4,25 @@ import { createCoreModule } from "@lctx/core";
 const HELP_TEXT = `lctx ask - Ask a question using sources
 
 Usage: lctx ask -s <sources...> -q <question>
+       lctx ask -g <group> -q <question>
 
 Options:
-  -s, --sources <names...>  Source names to use (required, can specify multiple)
+  -s, --sources <names...>  Source names to use (can specify multiple)
+  -g, --group <name>        Group name to use (resolves to its sources)
   -q, --question <text>     Question to ask (required)
   -h, --help                Show this help message
 
 Examples:
   lctx ask -s langchain -q "How do I create a tool?"
-  lctx ask -s langchain langgraph -q "What is the difference between these?"`;
+  lctx ask -s langchain langgraph -q "What is the difference between these?"
+  lctx ask -g ai-docs -q "How to create an MCP server?"`;
 
 export async function askCommand(args: string[]): Promise<void> {
   const { values, positionals } = parseArgs({
     args,
     options: {
       sources: { type: "string", short: "s", multiple: true },
+      group: { type: "string", short: "g" },
       question: { type: "string", short: "q" },
       help: { type: "boolean", short: "h" },
     },
@@ -30,6 +34,9 @@ export async function askCommand(args: string[]): Promise<void> {
     return;
   }
 
+  const { sourcesManager, groupManager, subagentRunner } =
+    await createCoreModule();
+
   // Collect sources from -s flags and remaining positionals before -q
   const sources: string[] = [...(values.sources || [])];
 
@@ -40,10 +47,18 @@ export async function askCommand(args: string[]): Promise<void> {
     }
   }
 
+  // If group is specified, resolve its sources
+  if (values.group) {
+    const groupSources = await groupManager.resolveSources(values.group);
+    sources.push(...groupSources);
+  }
+
   const question = values.question;
 
   if (sources.length === 0) {
-    console.error("Error: At least one source is required (-s)\n");
+    console.error(
+      "Error: At least one source (-s) or group (-g) is required\n",
+    );
     console.log(HELP_TEXT);
     process.exit(1);
   }
@@ -53,8 +68,6 @@ export async function askCommand(args: string[]): Promise<void> {
     console.log(HELP_TEXT);
     process.exit(1);
   }
-
-  const { sourcesManager, subagentRunner } = await createCoreModule();
 
   // Validate all sources exist
   for (const name of sources) {

@@ -16,5 +16,6 @@
       }
     }
   },
-  "defaultAgent": "claude-code"
+  "defaultAgent": "claude-code",
+  "groups": {}
 }

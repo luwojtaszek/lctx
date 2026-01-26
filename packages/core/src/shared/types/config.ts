@@ -1,6 +1,15 @@
 import type { Source } from "./source.ts";
 
 /**
+ * Named collection of sources for quick queries
+ */
+export interface SourceGroup {
+  name: string;
+  description?: string;
+  sources: string[]; // Source names
+}
+
+/**
  * Agent configuration with command templates
  */
 export interface AgentConfig {
@@ -33,4 +42,6 @@ export interface LctxConfig {
   agents: Record<string, AgentConfig>;
   /** Name of the default agent to use */
   defaultAgent: string;
+  /** Source groups for organizing sources */
+  groups: Record<string, SourceGroup>;
 }

@@ -54,7 +54,18 @@ export function HelpScreen({ onBack }: HelpScreenProps) {
       <Box flexDirection="column" marginBottom={1}>
         <Text bold>Direct Commands</Text>
         <Text>
-          <Text color="cyan">lctx help</Text> Show this help
+          <Text color="cyan">lctx source</Text> Manage sources (add, remove,
+          list, sync)
+        </Text>
+        <Text>
+          <Text color="cyan">lctx group</Text> Manage source groups
+        </Text>
+        <Text>
+          <Text color="cyan">lctx health</Text> Check health of sources
+        </Text>
+        <Text>
+          <Text color="cyan">lctx marketplace</Text> Browse and install source
+          collections
         </Text>
         <Text>
           <Text color="cyan">lctx ask &lt;sources&gt; &lt;question&gt;</Text>{" "}
@@ -64,10 +75,13 @@ export function HelpScreen({ onBack }: HelpScreenProps) {
           <Text color="cyan">lctx chat &lt;sources&gt;</Text> Start chat session
         </Text>
         <Text>
-          <Text color="cyan">lctx sync [name]</Text> Sync source(s)
+          <Text color="cyan">lctx mcp</Text> Start MCP server
         </Text>
         <Text>
-          <Text color="cyan">lctx mcp</Text> Start MCP server
+          <Text color="cyan">lctx upgrade</Text> Check for and install updates
+        </Text>
+        <Text>
+          <Text color="cyan">lctx help</Text> Show this help
         </Text>
       </Box>
 

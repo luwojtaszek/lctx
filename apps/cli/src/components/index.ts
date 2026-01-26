@@ -1,9 +1,14 @@
 export { App } from "./App.js";
 export { MainMenu, type Screen } from "./MainMenu.js";
 export { SourcesScreen } from "./SourcesScreen.js";
+export { GroupsScreen } from "./GroupsScreen.js";
+export { HealthDashboard } from "./HealthDashboard.js";
+export { MarketplaceScreen } from "./MarketplaceScreen.js";
 export { AskScreen } from "./AskScreen.js";
 export { HelpScreen } from "./HelpScreen.js";
 export { AddSource } from "./AddSource.js";
+export { AddGroup } from "./AddGroup.js";
 export { EditSource } from "./EditSource.js";
 export { RemoveSource } from "./RemoveSource.js";
+export { RemoveGroup } from "./RemoveGroup.js";
 export { SyncProgress } from "./SyncProgress.js";

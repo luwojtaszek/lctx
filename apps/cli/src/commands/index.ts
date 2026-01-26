@@ -6,3 +6,7 @@ export { askCommand } from "./ask.ts";
 export { chatCommand } from "./chat.ts";
 export { mcpCommand } from "./mcp.ts";
 export { upgradeCommand } from "./upgrade.ts";
+export { groupCommand } from "./group.ts";
+export { healthCommand } from "./health.ts";
+export { marketplaceCommand } from "./marketplace.ts";
+export { sourceCommand } from "./source.ts";
