@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/luwojtaszek/lctx/compare/v1.1.0...v1.2.0) (2026-02-04)
+
+
+### Features
+
+* build test ([04a0188](https://github.com/luwojtaszek/lctx/commit/04a018885f1587f7d406e98915238e96002a7f10))
+
 ## [1.1.0](https://github.com/luwojtaszek/lctx/compare/v1.0.0...v1.1.0) (2026-02-04)
 
 
