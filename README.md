@@ -206,5 +206,4 @@ To use a different agent, add its configuration to the `agents` object in `~/.co
 
 ## License
 
-
 MIT
